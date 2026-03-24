@@ -1,0 +1,36 @@
+{% extends 'core/base.html' %}
+{% block title %}Projects{% endblock %}
+{% block content %}
+<div class="hero-section py-4">
+    <div class="container">
+        <h1>Active Projects</h1>
+        <p class="lead">Discover opportunities to contribute to your community.</p>
+    </div>
+</div>
+
+<div class="row">
+    {% for project in projects %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 project-card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ project.name }}</h5>
+                    <p class="card-text text-muted">
+                        <i class="bi bi-geo-alt"></i> {{ project.location }}<br>
+                        <i class="bi bi-cash-stack"></i> R{{ project.estimated_budget|floatformat:2 }}<br>
+                        <i class="bi bi-calendar"></i> {{ project.start_date|date:"M d, Y" }} - {{ project.end_date|date:"M d, Y" }}
+                    </p>
+                    <p class="card-text">{{ project.description|truncatewords:20 }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-info">{{ project.projectrole_set.count }} role(s)</span>
+                        <a href="{% url 'project_detail' project.id %}" class="btn btn-primary">View Details</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-12">
+            <p class="alert alert-info">No active projects found.</p>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

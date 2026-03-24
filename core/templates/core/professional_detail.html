@@ -1,0 +1,98 @@
+{% extends 'core/base.html' %}
+{% block title %}{{ professional.user.get_full_name }}{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                {% if professional.profile_pic %}
+                    <img src="{{ professional.profile_pic.url }}" class="profile-img mb-3" alt="{{ professional.user.get_full_name }}">
+                {% else %}
+                    <img src="https://via.placeholder.com/150" class="profile-img mb-3" alt="Default profile">
+                {% endif %}
+                <h3>{{ professional.user.get_full_name|default:professional.user.username }}</h3>
+                <p class="text-muted">{{ professional.profession.name }}</p>
+                <p>
+                    <span class="badge bg-primary">{{ professional.years_experience }} years</span>
+                    {% if professional.is_verified %}
+                        <span class="badge-verified"><i class="bi bi-patch-check-fill"></i> Verified</span>
+                    {% endif %}
+                    {% if professional.is_supervisor %}
+                        <span class="badge-supervisor"><i class="bi bi-star-fill"></i> Supervisor</span>
+                    {% endif %}
+                </p>
+                <p><i class="bi bi-geo-alt"></i> {{ professional.location }}</p>
+                <p>{{ professional.bio }}</p>
+                {% if professional.certificate %}
+                    <a href="{{ professional.certificate.url }}" target="_blank" class="btn btn-sm btn-outline-info"><i class="bi bi-file-earmark-pdf"></i> View Certificate</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <h3>AI-Powered Project Recommendations</h3>
+        {% if ai_recommendations %}
+            <div class="row">
+                {% for rec in ai_recommendations %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card {% if rec.recommendation == 'Strong Match' %}border-success{% elif rec.recommendation == 'Potential Match' %}border-warning{% endif %}">
+                            <div class="card-header">
+                                <h5>{{ rec.project_name }}</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="progress mb-2">
+                                    <div class="progress-bar {% if rec.match_score >= 70 %}bg-success{% elif rec.match_score >= 40 %}bg-warning{% else %}bg-danger{% endif %}"
+                                         style="width: {{ rec.match_score }}%;">
+                                        {{ rec.match_score }}% Match
+                                    </div>
+                                </div>
+                                {% if rec.strengths %}
+                                    <h6>Strengths:</h6>
+                                    <ul class="list-unstyled">
+                                        {% for strength in rec.strengths %}
+                                            <li><i class="bi bi-check-circle-fill text-success"></i> {{ strength }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
+                                {% if rec.gaps %}
+                                    <h6>Gaps:</h6>
+                                    <ul class="list-unstyled">
+                                        {% for gap in rec.gaps %}
+                                            <li><i class="bi bi-exclamation-triangle-fill text-warning"></i> {{ gap }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
+                                <p><strong>Recommendation:</strong>
+                                    <span class="badge {% if rec.recommendation == 'Strong Match' %}bg-success{% elif rec.recommendation == 'Potential Match' %}bg-warning{% else %}bg-secondary{% endif %}">
+                                        {{ rec.recommendation }}
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% if ai_error %}
+            <div class="alert alert-danger">
+                 <strong>AI Error:</strong> {{ ai_error }}
+            </div>
+        {% endif %}
+        {% else %}
+            <p class="alert alert-info">No AI recommendations available. Try the simple match below.</p>
+        {% endif %}
+
+        
+        <h4 class="mt-4">Simple Profession-Based Matches</h4>
+        <ul class="list-group">
+            {% for project in recommended_projects %}
+                <li class="list-group-item">
+                    <a href="{% url 'project_detail' project.id %}">{{ project.name }}</a>
+                </li>
+            {% empty %}
+                <li class="list-group-item">No matching projects found.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends 'core/base.html' %}
+{% block title %}Review Bid{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4>Bid by {{ bid.professional.user.get_full_name }}</h4>
+            </div>
+            <div class="card-body">
+                <p><strong>Project:</strong> <a href="{% url 'project_detail' bid.project.id %}">{{ bid.project.name }}</a></p>
+                <p><strong>Proposed Budget:</strong> R{{ bid.proposed_budget|floatformat:2 }}</p>
+                <p><strong>Proposal:</strong> {{ bid.proposal_text|linebreaks }}</p>
+                <p><strong>Documents:</strong></p>
+                <ul>
+                    {% for doc in bid.documents.all %}
+                        <li><a href="{{ doc.file.url }}" target="_blank">{{ doc.file.name }}</a></li>
+                    {% empty %}
+                        <li>None</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h4>Decision</h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-primary">Submit Decision</button>
+                    <a href="{% url 'municipality_bids' %}" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

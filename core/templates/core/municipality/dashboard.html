@@ -1,0 +1,196 @@
+{% extends 'core/base.html' %}
+{% block title %}Municipality Dashboard{% endblock %}
+{% block content %}
+<div class="hero-section py-4">
+    <div class="container">
+        <h1>Municipality Dashboard</h1>
+        <p class="lead">AI-powered insights and management tools.</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <a href="{% url 'project_create' %}" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Add New Project
+        </a>
+    </div>
+</div>
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <h5 class="card-title">Active Projects</h5>
+                <h2>{{ stats.total_projects }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h5 class="card-title">Verified Professionals</h5>
+                <h2>{{ stats.total_professionals }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning">
+            <div class="card-body">
+                <h5 class="card-title">Pending Inquiries</h5>
+                <h2>{{ stats.pending_inquiries }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-danger">
+            <div class="card-body">
+                <h5 class="card-title">Flagged Content</h5>
+                <h2>{{ stats.flagged_items }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AI-Generated Project Ideas (automatic) -->
+{% if recommendations %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">💡 AI-Generated Project Ideas for Your Community</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for rec in recommendations %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5>{{ rec.project_name }}</h5>
+                                <p>{{ rec.description|truncatewords:20 }}</p>
+                                <p><strong>Budget:</strong> ${{ rec.estimated_budget|floatformat:2 }}</p>
+                                <p><strong>Timeline:</strong> {{ rec.timeline_months }} months</p>
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#recModal{{ forloop.counter }}">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal for each recommendation -->
+                    <div class="modal fade" id="recModal{{ forloop.counter }}" tabindex="-1" aria-labelledby="recModalLabel{{ forloop.counter }}" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="recModalLabel{{ forloop.counter }}">{{ rec.project_name }}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>{{ rec.description }}</p>
+                                    <h6>Required Professions:</h6>
+                                    <ul>
+                                        {% for prof, count in rec.headcount.items %}
+                                        <li>{{ prof }}: {{ count }} person(s)</li>
+                                        {% endfor %}
+                                    </ul>
+                                    <p><strong>Estimated Budget:</strong> ${{ rec.estimated_budget|floatformat:2 }}</p>
+                                    <p><strong>Timeline:</strong> {{ rec.timeline_months }} months</p>
+                                    <h6>Benefits:</h6>
+                                    <ul>
+                                        {% for benefit in rec.benefits %}
+                                        <li>{{ benefit }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                    <p><strong>Requirements:</strong> {{ rec.requirements }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Manual Project Ideas Card (optional) -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h5 class="card-title">Custom AI Project Ideas</h5>
+                <p>Generate new recommendations based on specific location and needs.</p>
+                <a href="{% url 'project_recommendations' %}" class="btn btn-light">Get Ideas</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Projects and Inquiries -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Active Projects</h5>
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for project in projects %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ project.name }}
+                    <a href="{% url 'project_insights' project.id %}" class="btn btn-sm btn-outline-primary">Insights</a>
+                </li>
+                {% empty %}
+                <li class="list-group-item">No active projects.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Recent Inquiries</h5>
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for inquiry in inquiries|slice:":5" %}
+                <li class="list-group-item">
+                    <a href="{% url 'inquiry_detail' inquiry.id %}">{{ inquiry.subject }}</a>
+                    <small class="text-muted d-block">by {{ inquiry.citizen_name }}</small>
+                </li>
+                {% empty %}
+                <li class="list-group-item">No pending inquiries.</li>
+                {% endfor %}
+            </ul>
+            <div class="card-footer">
+                <a href="{% url 'inquiry_list' %}" class="btn btn-sm btn-primary">View All</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Flagged Content -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Flagged Content ({{ flagged_posts.count }})</h5>
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for flag in flagged_posts %}
+                <li class="list-group-item">
+                    {% if flag.content_type == 'post' %}
+                        <strong>Post:</strong> {{ flag.post.title }}
+                    {% else %}
+                        <strong>Comment:</strong> {{ flag.comment.content|truncatewords:20 }}
+                    {% endif %}
+                    <br>
+                    <small class="text-danger">Reason: {{ flag.reason }}</small>
+                    <a href="{% url 'flagged_review' flag.id %}" class="btn btn-sm btn-warning float-end">Review</a>
+                </li>
+                {% empty %}
+                <li class="list-group-item">No flagged content.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

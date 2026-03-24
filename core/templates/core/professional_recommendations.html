@@ -1,0 +1,49 @@
+{% extends 'core/base.html' %}
+{% block title %}Recommended Projects for You{% endblock %}
+{% block content %}
+<div class="hero-section py-4">
+    <div class="container">
+        <h1>AI-Recommended Projects</h1>
+        <p class="lead">Based on your profile, skills, and location.</p>
+    </div>
+</div>
+
+<div class="row">
+    {% for rec in recommendations %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header {% if rec.recommendation == 'Strong Match' %}bg-success{% elif rec.recommendation == 'Potential Match' %}bg-warning{% else %}bg-secondary{% endif %} text-white">
+                    <h5 class="mb-0">{{ rec.project_name }}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="progress mb-2">
+                        <div class="progress-bar bg-primary" style="width: {{ rec.match_score }}%;">{{ rec.match_score }}%</div>
+                    </div>
+                    <p><strong>Match Score:</strong> {{ rec.match_score }}%</p>
+                    {% if rec.strengths %}
+                        <h6>✅ Strengths:</h6>
+                        <ul class="list-unstyled">
+                            {% for s in rec.strengths %}
+                                <li><i class="bi bi-check-circle-fill text-success"></i> {{ s }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                    {% if rec.gaps %}
+                        <h6>⚠️ Gaps:</h6>
+                        <ul class="list-unstyled">
+                            {% for g in rec.gaps %}
+                                <li><i class="bi bi-exclamation-triangle-fill text-warning"></i> {{ g }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                    <a href="{% url 'project_detail' rec.project_id %}" class="btn btn-sm btn-primary">View Project</a>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-12">
+            <p class="alert alert-info">No recommendations available at this time.</p>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

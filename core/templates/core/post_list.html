@@ -1,0 +1,31 @@
+{% extends 'core/base.html' %}
+{% block title %}{{ profession.name }} Discussions{% endblock %}
+{% block content %}
+<div class="hero-section">
+    <div class="container">
+        <h1>{{ profession.name }} Discussions</h1>
+        <p class="lead">{{ profession.description|default:"Join the conversation with fellow professionals." }}</p>
+        {% if user.is_authenticated %}
+            <a href="{% url 'create_post' %}" class="btn btn-light btn-lg">New Post</a>
+        {% else %}
+            <a href="#" class="btn btn-light btn-lg needs-login">New Post</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="list-group">
+    {% for post in posts %}
+        <a href="{% url 'post_detail' profession.id post.id %}" class="list-group-item list-group-item-action">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">{{ post.title }}</h5>
+                <small>{{ post.created_at|date:"M d, Y" }}</small>
+            </div>
+            <p class="mb-1">{{ post.content|truncatewords:30 }}</p>
+            <small>By {{ post.author.get_full_name|default:post.author.username }}</small>
+            <span class="badge bg-secondary rounded-pill">{{ post.comments.count }} comments</span>
+        </a>
+    {% empty %}
+        <div class="alert alert-info">No posts yet. Start a discussion!</div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends 'core/base.html' %}
+{% block title %}My Bids{% endblock %}
+{% block content %}
+<div class="hero-section py-4">
+    <div class="container">
+        <h1>My Bids</h1>
+        <p class="lead">Track your submitted bids and feedback.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        {% if bids %}
+            <div class="list-group">
+                {% for bid in bids %}
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ bid.project.name }}</h5>
+                            <small class="text-muted">{{ bid.submitted_at|date:"M d, Y" }}</small>
+                        </div>
+                        <p class="mb-1"><strong>Proposed Budget:</strong> R{{ bid.proposed_budget|floatformat:2 }}</p>
+                        <p class="mb-1">{{ bid.proposal_text|truncatewords:30 }}</p>
+                        <div class="mt-2">
+                            <span class="badge {% if bid.status == 'approved' %}bg-success{% elif bid.status == 'rejected' %}bg-danger{% else %}bg-warning{% endif %}">
+                                {{ bid.get_status_display }}
+                            </span>
+                            {% if bid.status != 'pending' %}
+                                <button class="btn btn-sm btn-link" data-bs-toggle="collapse" data-bs-target="#feedback{{ bid.id }}">View Feedback</button>
+                                <div id="feedback{{ bid.id }}" class="collapse mt-2">
+                                    <div class="card card-body bg-light">
+                                        {{ bid.feedback|linebreaks }}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <a href="{% url 'bid_detail' bid.id %}" class="btn btn-sm btn-outline-primary mt-2">View Details</a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info">You have not submitted any bids yet.</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

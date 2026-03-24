@@ -1,0 +1,52 @@
+{% extends 'core/base.html' %}
+{% block title %}Bid Details{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3>Bid on {{ bid.project.name }}</h3>
+            </div>
+            <div class="card-body">
+                <p><strong>Submitted:</strong> {{ bid.submitted_at|date:"F j, Y, g:i a" }}</p>
+                <p><strong>Proposed Budget:</strong> R{{ bid.proposed_budget|floatformat:2 }}</p>
+                <p><strong>Proposal:</strong> {{ bid.proposal_text|linebreaks }}</p>
+                <p><strong>Status:</strong> 
+                    <span class="badge {% if bid.status == 'approved' %}bg-success{% elif bid.status == 'rejected' %}bg-danger{% else %}bg-warning{% endif %}">
+                        {{ bid.get_status_display }}
+                    </span>
+                </p>
+                {% if bid.feedback %}
+                    <div class="alert alert-info">
+                        <strong>Feedback:</strong> {{ bid.feedback|linebreaks }}
+                    </div>
+                {% endif %}
+                <h5>Documents:</h5>
+                {% if bid.documents.all %}
+                    <ul>
+                        {% for doc in bid.documents.all %}
+                            <li><a href="{{ doc.file.url }}" target="_blank">{{ doc.file.name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No documents uploaded.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Project Details</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>{{ bid.project.name }}</strong></p>
+                <p>{{ bid.project.description|truncatewords:50 }}</p>
+                <p><strong>Original Budget:</strong> R{{ bid.project.estimated_budget|floatformat:2 }}</p>
+                <p><strong>Location:</strong> {{ bid.project.location }}</p>
+                <a href="{% url 'project_detail' bid.project.id %}" class="btn btn-outline-primary">View Project</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

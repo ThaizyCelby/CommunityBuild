@@ -1,0 +1,46 @@
+{% extends 'core/base.html' %}
+{% block title %}Inquiry: {{ inquiry.subject }}{% endblock %}
+{% block content %}
+<div class="container">
+    <h1>{{ inquiry.subject }}</h1>
+    <div class="card mb-4">
+        <div class="card-header">
+            From: {{ inquiry.citizen_name }} ({{ inquiry.citizen_email }})
+            <br><small class="text-muted">{{ inquiry.created_at|date:"F j, Y, g:i a" }}</small>
+        </div>
+        <div class="card-body">
+            <p>{{ inquiry.message|linebreaks }}</p>
+        </div>
+    </div>
+
+    <h3>Response</h3>
+    {% if inquiry.is_responded %}
+        <div class="card mb-4">
+            <div class="card-body">
+                {{ inquiry.final_response|linebreaks }}
+                <hr>
+                <small class="text-muted">Responded on {{ inquiry.responded_at|date:"F j, Y, g:i a" }}</small>
+            </div>
+        </div>
+    {% else %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>AI Draft Response</h5>
+            </div>
+            <div class="card-body">
+                <p>{{ inquiry.ai_drafted_response|default:"Draft not yet generated." }}</p>
+            </div>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="final_response" class="form-label">Your Response</label>
+                <textarea class="form-control" id="final_response" name="final_response" rows="5" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Send Response</button>
+            <a href="{% url 'inquiry_list' %}" class="btn btn-secondary">Back</a>
+        </form>
+    {% endif %}
+</div>
+{% endblock %}

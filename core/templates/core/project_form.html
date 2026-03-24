@@ -1,0 +1,50 @@
+{% extends 'core/base.html' %}
+{% block title %}Add New Project{% endblock %}
+{% block content %}
+<div class="hero-section py-4">
+    <div class="container">
+        <h1>Add New Community Project</h1>
+        <p class="lead">Fill in the details and required professions.</p>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="post" id="projectForm">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+
+                    <h4 class="mt-4">Required Professions</h4>
+                    <div id="formset-container">
+                        {{ formset.management_form }}
+                        {% for role_form in formset %}
+                            <div class="role-form-row border p-3 mb-2">
+                                {{ role_form.as_p }}
+                                {% if role_form.instance.pk %}{{ role_form.DELETE }}{% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <button type="button" class="btn btn-sm btn-secondary" id="add-role">Add Another Profession</button>
+
+                    <hr>
+                    <button type="submit" class="btn btn-primary">Create Project</button>
+                    <a href="{% url 'municipality_dashboard' %}" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Simple JS to add new role forms (using Django's empty form)
+    document.getElementById('add-role').addEventListener('click', function() {
+        var form_idx = document.querySelector('#id_projectrole_set-TOTAL_FORMS').value;
+        var newForm = document.querySelector('.role-form-row').cloneNode(true);
+        newForm.innerHTML = newForm.innerHTML.replace(/projectrole_set-\d+/g, 'projectrole_set-' + form_idx);
+        document.getElementById('formset-container').insertBefore(newForm, this);
+        document.querySelector('#id_projectrole_set-TOTAL_FORMS').value = parseInt(form_idx) + 1;
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'core/base.html' %}
+{% block title %}AI Project Recommendations{% endblock %}
+{% block content %}
+<div class="hero-section py-4">
+    <div class="container">
+        <h1>AI Project Recommendations</h1>
+        <p class="lead">Enter your municipality details to get AI-generated project ideas.</p>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="location" class="form-label">Location (City/Region)</label>
+                        <input type="text" class="form-control" id="location" name="location" required placeholder="e.g., Springfield">
+                    </div>
+                    <div class="mb-3">
+                        <label for="community_profile" class="form-label">Community Profile (Optional)</label>
+                        <textarea class="form-control" id="community_profile" name="community_profile" rows="4" placeholder="Describe your community's needs, demographics, or goals..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Generate Recommendations</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

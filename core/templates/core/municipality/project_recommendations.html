@@ -1,0 +1,51 @@
+{% extends 'core/base.html' %}
+{% block title %}Project Recommendations for {{ location }}{% endblock %}
+{% block content %}
+<div class="hero-section py-4">
+    <div class="container">
+        <h1>AI-Generated Project Ideas for {{ location }}</h1>
+        {% if profile %}
+            <p class="lead">Based on: {{ profile }}</p>
+        {% endif %}
+    </div>
+</div>
+
+{% if recommendations %}
+    <div class="row">
+        {% for project in recommendations %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">{{ project.project_name }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>{{ project.description }}</p>
+                        <h6>Required Professions:</h6>
+                        <ul class="list-unstyled">
+                            {% for prof, count in project.headcount.items %}
+                                <li><i class="bi bi-person-badge"></i> {{ prof }}: {{ count }}</li>
+                            {% endfor %}
+                        </ul>
+                        <p><strong>Estimated Budget:</strong> ${{ project.estimated_budget|floatformat:2 }}</p>
+                        <p><strong>Timeline:</strong> {{ project.timeline_months }} months</p>
+                        <h6>Benefits:</h6>
+                        <ul>
+                            {% for benefit in project.benefits %}
+                                <li>{{ benefit }}</li>
+                            {% endfor %}
+                        </ul>
+                        <p><strong>Requirements:</strong> {{ project.requirements }}</p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p class="alert alert-warning">No recommendations generated. Please try again with more details.</p>
+{% endif %}
+
+<div class="mt-4">
+    <a href="{% url 'project_recommendations' %}" class="btn btn-secondary">Request Again</a>
+    <a href="{% url 'municipality_dashboard' %}" class="btn btn-outline-primary">Back to Dashboard</a>
+</div>
+{% endblock %}

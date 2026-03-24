@@ -1,0 +1,56 @@
+{% extends 'core/base.html' %}
+{% block title %}Professionals{% endblock %}
+{% block content %}
+<div class="hero-section py-4"> <!-- smaller hero -->
+    <div class="container">
+        <h1>Find Local Professionals</h1>
+        <p class="lead">Connect with verified experts in your community.</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <input type="text" id="professionalSearch" class="form-control" placeholder="Search by name or profession...">
+    </div>
+    <div class="col-md-4">
+        <select name="profession" class="form-select" onchange="window.location=this.value">
+            <option value="{% url 'professional_list' %}">All Professions</option>
+            {% for prof in professions %}
+                <option value="{% url 'professional_list' %}?profession={{ prof.id }}" {% if selected == prof.id %}selected{% endif %}>{{ prof.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% for professional in professionals %}
+        <div class="col professional-card">
+            <div class="card h-100 text-center">
+                <div class="card-body">
+                    {% if professional.profile_pic %}
+                        <img src="{{ professional.profile_pic.url }}" class="profile-img-sm mb-2" style="width: 80px; height: 80px;" alt="{{ professional.user.get_full_name }}">
+                    {% else %}
+                        <div class="bg-secondary rounded-circle mx-auto mb-2" style="width: 80px; height: 80px;"></div>
+                    {% endif %}
+                    <h6 class="card-title mb-1">{{ professional.user.get_full_name|default:professional.user.username }}</h6>
+                    <p class="small text-muted mb-2">{{ professional.profession.name }}</p>
+                    <div class="mb-2">
+                        {% if professional.is_verified %}
+                            <span class="badge bg-success" style="font-size: 0.7rem;">Verified</span>
+                        {% endif %}
+                        {% if professional.is_supervisor %}
+                            <span class="badge bg-info" style="font-size: 0.7rem;">Supervisor</span>
+                        {% endif %}
+                    </div>
+                    <p class="small mb-2"><i class="bi bi-geo-alt"></i> {{ professional.location|default:"Location not set" }}</p>
+                    <a href="{% url 'professional_detail' professional.pk %}" class="btn btn-sm btn-outline-primary">View Profile</a>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-12">
+            <p class="alert alert-info">No verified professionals found.</p>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

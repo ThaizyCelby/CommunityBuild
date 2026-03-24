@@ -1,0 +1,68 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<h2>{{ project.name }}</h2>
+<p><strong>Location:</strong> {{ project.location }}</p>
+<p><strong>Budget:</strong> R{{ project.estimated_budget|floatformat:2 }}</p>
+<p><strong>Benefits:</strong> {{ project.benefits }}</p>
+<p><strong>Requirements:</strong> {{ project.requirements }}</p>
+
+<h3 class="mt-4">Required Professions</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Profession</th>
+            <th>Needed</th>
+            <th>Budget Allocation</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for role in roles %}
+        <tr>
+            <td>{{ role.profession.name }}</td>
+            <td>{{ role.quantity_needed }}</td>
+            <td>R{{ role.budget_allocation|default:"Not set"|floatformat:2 }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% if budget_labels != "[]" %}
+    <canvas id="budgetChart" width="400" height="200"></canvas>
+    <script>
+        const ctx = document.getElementById('budgetChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: {{ budget_labels|safe }},
+                datasets: [{
+                    label: 'Budget Allocation (Rands)',
+                    data: {{ budget_data|safe }},
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: { scales: { y: { beginAtZero: true } } }
+        });
+    </script>
+{% endif %}
+
+<h3 class="mt-4">Qualified Local Professionals</h3>
+{% for profession, profs in qualified.items %}
+    <h5>{{ profession }}</h5>
+    <ul>
+    {% for p in profs %}
+        <li><a href="{% url 'professional_detail' p.pk %}">{{ p.user.get_full_name }}</a> ({{ p.years_experience }} yrs exp) {% if p.is_verified %}✅ Verified{% endif %}</li>
+    {% empty %}
+        <li>No verified professionals found locally.</li>
+    {% endfor %}
+    </ul>
+{% endfor %}
+
+<!-- Bid button -->
+{% if user.is_authenticated and not user.is_staff and user.professional %}
+    <div class="mt-4">
+        <a href="{% url 'bid_create' project.id %}" class="btn btn-success">Bid on This Project</a>
+    </div>
+{% endif %}
+{% endblock %}

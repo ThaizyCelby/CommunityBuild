@@ -1,0 +1,52 @@
+{% extends 'core/base.html' %}
+{% block title %}Bids Management{% endblock %}
+{% block content %}
+<div class="hero-section py-4">
+    <div class="container">
+        <h1>Manage Bids</h1>
+        <p class="lead">Review and respond to professional bids.</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Project</th>
+                        <th>Professional</th>
+                        <th>Proposed Budget</th>
+                        <th>Submitted</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bid in bids %}
+                    <tr>
+                        <td><a href="{% url 'project_detail' bid.project.id %}">{{ bid.project.name }}</a></td>
+                        <td>{{ bid.professional.user.get_full_name }}</td>
+                        <td>R{{ bid.proposed_budget|floatformat:2 }}</td>
+                        <td>{{ bid.submitted_at|date:"M d, Y" }}</td>
+                        <td>
+                            <span class="badge {% if bid.status == 'approved' %}bg-success{% elif bid.status == 'rejected' %}bg-danger{% else %}bg-warning{% endif %}">
+                                {{ bid.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{% url 'review_bid' bid.id %}" class="btn btn-sm btn-primary">Review</a>
+                            <a href="{% url 'bid_detail' bid.id %}" class="btn btn-sm btn-outline-secondary">View</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">No bids submitted yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
